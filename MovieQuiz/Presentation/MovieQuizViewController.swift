@@ -41,7 +41,8 @@ final class MovieQuizViewController: UIViewController {
         let alert = UIAlertController(
             title: result.title,
             message: result.text,
-            preferredStyle: .alert)
+            preferredStyle: .alert
+        )
         
         let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
             self.questions.reset()
@@ -67,8 +68,8 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
-        let ok = questions.next()
-        if !ok {
+        let hasNextQuestion = questions.next()
+        if !hasNextQuestion {
             let result = QuizResultViewModel(
                 title: "Этот раунд окончен!",
                 text: "Ваш результат: \(questions.correctAnswers)/\(questions.count)",
@@ -155,11 +156,11 @@ private struct Questions {
     }
     
     mutating func checkCurrentQuestion(answer: Bool) -> Bool {
-        let ok = current.check(answer: answer)
-        if ok {
+        let isCorrect = current.check(answer: answer)
+        if isCorrect {
             correctAnswers += 1
         }
-        return ok
+        return isCorrect
     }
     
     mutating func next() -> Bool {
