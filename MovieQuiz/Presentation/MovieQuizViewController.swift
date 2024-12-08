@@ -14,6 +14,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
     private var currentQuestion: QuizQuestion?
     
+    private var alertPresenter: AlertPresenterProtocol = AlertPresenter()
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +23,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let questionFactory = QuestionFactory()
         questionFactory.delegate = self
         self.questionFactory = questionFactory
+        
+        let alertPresenter = AlertPresenter()
+        alertPresenter.controller = self
+        self.alertPresenter = alertPresenter
         
         questionFactory.requestNextQuestion()
     }
@@ -77,24 +83,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz result: QuizResultViewModel) {
-        let alert = UIAlertController(
+        let alertModel = AlertModel(
             title: result.title,
             message: result.text,
-            preferredStyle: .alert
+            buttonText: result.buttonText,
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                correctAnswersCount = 0
+                currentQuestionIndex = 0
+                
+                questionFactory.requestNextQuestion()
+            }
         )
         
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            
-            correctAnswersCount = 0
-            currentQuestionIndex = 0
-            
-            questionFactory.requestNextQuestion()
-        }
-        
-        alert.addAction(action)
-        
-        self.present(alert, animated: true, completion: nil)
+        alertPresenter.showAlert(alert: alertModel)
     }
     
     private func showAnswerResult(isCorrect: Bool) {
