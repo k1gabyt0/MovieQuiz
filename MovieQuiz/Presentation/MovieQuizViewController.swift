@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
@@ -17,9 +17,25 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            show(quiz: convert(model: firstQuestion))
+        
+        let questionFactory = QuestionFactory()
+        questionFactory.delegate = self
+        self.questionFactory = questionFactory
+        
+        questionFactory.requestNextQuestion()
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
         }
     }
     
@@ -71,12 +87,9 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             
             correctAnswersCount = 0
+            currentQuestionIndex = 0
             
-            if let firstQuestion = questionFactory.requestNextQuestion() {
-                currentQuestionIndex = 0
-                currentQuestion = firstQuestion
-                show(quiz: convert(model: firstQuestion))
-            }
+            questionFactory.requestNextQuestion()
         }
         
         alert.addAction(action)
@@ -106,11 +119,8 @@ final class MovieQuizViewController: UIViewController {
             return
         }
         
-        if let nextQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = nextQuestion
-            currentQuestionIndex += 1
-            show(quiz: convert(model: nextQuestion))
-        }
+        currentQuestionIndex += 1
+        questionFactory.requestNextQuestion()
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
