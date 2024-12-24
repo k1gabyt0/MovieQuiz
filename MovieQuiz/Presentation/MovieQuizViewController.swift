@@ -1,17 +1,21 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    private let token = "<ТОКЕН ВСТАВИТЬ СЮДА>"
+    
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
     
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
+
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     private var correctAnswersCount: Int = 0
     private var currentQuestionIndex: Int = 0
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
     private var alertPresenter: AlertPresenterProtocol = AlertPresenter()
@@ -21,15 +25,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(token: token), delegate: self)
         self.questionFactory = questionFactory
         
         let alertPresenter = AlertPresenter()
         alertPresenter.controller = self
         self.alertPresenter = alertPresenter
         
-        questionFactory.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory.loadData()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -48,6 +52,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
+    }
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
     }
     
     @IBAction private func noButtonClicked(_ sender: Any) {
@@ -105,7 +118,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 correctAnswersCount = 0
                 currentQuestionIndex = 0
                 
-                questionFactory.requestNextQuestion()
+                questionFactory?.requestNextQuestion()
             }
         )
         
@@ -138,15 +151,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         
         currentQuestionIndex += 1
-        questionFactory.requestNextQuestion()
+        questionFactory?.requestNextQuestion()
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? getDefaultImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
     private func cleanUp() {
@@ -157,5 +169,32 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func getDefaultImage() -> UIImage {
         UIImage(named: "Default") ?? UIImage()
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+            
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswersCount = 0
+            
+            showLoadingIndicator()
+            self.questionFactory?.requestNextQuestion()
+        }
+            
+        alertPresenter.showAlert(alert: model)
     }
 }
