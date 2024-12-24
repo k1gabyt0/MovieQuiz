@@ -32,6 +32,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory.requestNextQuestion()
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
@@ -51,7 +55,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         
-        let isCorrect = currentQuestion.check(answer: false)
+        let isCorrect = currentQuestion.isCorrect(answer: false)
         if isCorrect {
             correctAnswersCount += 1
         }
@@ -65,7 +69,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         
-        let isCorrect = currentQuestion.check(answer: true)
+        let isCorrect = currentQuestion.isCorrect(answer: true)
         if isCorrect {
             correctAnswersCount += 1
         }
@@ -88,7 +92,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         \(result.text)
         Количество сыгранных квизов: \(statisticsService.gamesCount)
         Рекорд: \(statisticsService.bestGame.correct)/\(statisticsService.bestGame.total) (\(statisticsService.bestGame.date.dateTimeString))
-        Средняя точность: "\(String(format: "%.2f", statisticsService.totalAccuracy))%"
+        Средняя точность: \(String(format: "%.2f", statisticsService.totalAccuracy))%
         """
         
         let alertModel = AlertModel(
@@ -146,7 +150,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func cleanUp() {
-        imageView.layer.borderColor = nil
+        imageView.layer.borderWidth = 0
         noButton.isEnabled = true
         yesButton.isEnabled = true
     }

@@ -5,7 +5,7 @@ struct QuizQuestion {
     let text: String
     let correctAnswer: Bool
     
-    func check(answer: Bool) -> Bool {
+    func isCorrect(answer: Bool) -> Bool {
         return answer == correctAnswer
     }
 }

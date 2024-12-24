@@ -53,7 +53,7 @@ final class StatisticsService: StatisticsServiceProtocol {
     }
     
     var totalAccuracy: Double {
-        if gamesCount == 0 {
+        if answers == 0 {
             return 0
         }
         return Double(correctAnswers) / Double(answers) * 100
