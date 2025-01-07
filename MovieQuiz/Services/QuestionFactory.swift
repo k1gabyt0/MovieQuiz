@@ -6,6 +6,17 @@ final class QuestionFactory : QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoading
     private weak var delegate: QuestionFactoryDelegate?
     
+    private enum Error: LocalizedError {
+        case imageLoadError
+        
+        var errorDescription: String? {
+            switch self {
+            case .imageLoadError:
+                return "can't load image"
+            }
+        }
+    }
+    
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
@@ -28,7 +39,8 @@ final class QuestionFactory : QuestionFactoryProtocol {
             do {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
-                print("Failed to load image")
+                delegate?.didFailToLoadData(with: Error.imageLoadError)
+                return
             }
             
             let rating = Float(movie.rating) ?? 0

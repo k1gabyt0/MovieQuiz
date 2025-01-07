@@ -6,14 +6,9 @@ protocol MoviesLoading {
 
 struct MoviesLoader: MoviesLoading {
     private let networkClient = NetworkClient()
-    private let token: String
-    
-    init(token: String) {
-        self.token = token
-    }
     
     private var mostPopularMoviesUrl: URL {
-        guard let url = URL(string: "https://tv-api.com/en/API/Top250Movies/\(token)") else {
+        guard let url = URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf") else {
             preconditionFailure("Unable to construct mostPopularMoviesUrl")
         }
         return url
@@ -36,9 +31,14 @@ struct MoviesLoader: MoviesLoading {
             case .success(let data):
                 do {
                     let mostPopularMovies = try JSONDecoder().decode(MostPopularMovies.self, from: data)
+                   
                     let errMsg = mostPopularMovies.errorMessage
                     if !errMsg.isEmpty {
                         handler(.failure(CustomError.errorMessage(errMsg)))
+                        return
+                    }
+                    if mostPopularMovies.items.isEmpty{
+                        handler(.failure(CustomError.errorMessage("there are no movies")))
                         return
                     }
                     
