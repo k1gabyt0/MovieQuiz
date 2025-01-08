@@ -112,6 +112,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             title: result.title,
             message: alertText,
             buttonText: result.buttonText,
+            accesibilityIdentifier: "Game results",
             completion: { [weak self] in
                 guard let self = self else { return }
                 
@@ -182,9 +183,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func showNetworkError(message: String) {
         hideLoadingIndicator()
             
-        let model = AlertModel(title: "Ошибка",
-                               message: message,
-                               buttonText: "Попробовать еще раз") { [weak self] in
+        let model = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз",
+            accesibilityIdentifier: "Error message"
+        ) { [weak self] in
             guard let self = self else { return }
             
             self.currentQuestionIndex = 0
