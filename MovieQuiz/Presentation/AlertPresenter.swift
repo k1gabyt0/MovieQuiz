@@ -2,7 +2,11 @@ import Foundation
 import UIKit
 
 class AlertPresenter: AlertPresenterProtocol {
-    weak var controller : UIViewController?
+    private weak var controller : UIViewController?
+    
+    init (_ controller: UIViewController) {
+        self.controller = controller
+    }
     
     func showAlert(alert model: AlertModel) {
         guard let controller = controller else { return }

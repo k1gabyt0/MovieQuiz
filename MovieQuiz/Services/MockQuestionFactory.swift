@@ -61,4 +61,6 @@ final class MockQuestionFactory : QuestionFactoryProtocol {
         let question = questions[safe: idx]
         delegate?.didReceiveNextQuestion(question: question)
     }
+    
+    func loadData() {}
 }
