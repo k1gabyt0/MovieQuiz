@@ -9,9 +9,9 @@ final class MovieQuizPresenter {
     private var currentQuestionIndex: Int = 0
     private var correctAnswersCount: Int = 0
     
-    private weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewControllerProtocol?
     
-    init(_ viewController: MovieQuizViewController) {
+    init(_ viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         statisticsService = StatisticsService()
