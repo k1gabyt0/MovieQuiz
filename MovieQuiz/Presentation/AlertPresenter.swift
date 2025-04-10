@@ -1,8 +1,12 @@
 import Foundation
 import UIKit
 
-class AlertPresenter: AlertPresenterProtocol {
-    weak var controller : UIViewController?
+final class AlertPresenter: AlertPresenterProtocol {
+    private weak var controller : UIViewController?
+    
+    init (_ controller: UIViewController) {
+        self.controller = controller
+    }
     
     func showAlert(alert model: AlertModel) {
         guard let controller = controller else { return }
@@ -12,6 +16,7 @@ class AlertPresenter: AlertPresenterProtocol {
             message: model.message,
             preferredStyle: .alert
         )
+        alert.view.accessibilityIdentifier = model.accesibilityIdentifier
         
         let action = UIAlertAction(title: model.buttonText, style: .default) { _ in model.completion() }
         
