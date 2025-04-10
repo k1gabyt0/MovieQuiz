@@ -60,7 +60,7 @@ final class MovieQuizPresenter {
         showAnswerResult(isCorrect: isCorrect)
     }
     
-    func showNextQuestionOrResults() {
+    private func showNextQuestionOrResults() {
         if isLastQuestion() {
             let thisGame = GameResult(correct: correctAnswersCount, total: questionsAmount, date: Date())
             statisticsService.store(game: thisGame)
@@ -78,7 +78,7 @@ final class MovieQuizPresenter {
         requestNextQuestion()
     }
     
-    func showAnswerResult(isCorrect: Bool) {
+    private func showAnswerResult(isCorrect: Bool) {
         viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

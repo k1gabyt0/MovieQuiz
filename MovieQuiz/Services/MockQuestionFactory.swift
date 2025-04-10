@@ -62,5 +62,6 @@ final class MockQuestionFactory : QuestionFactoryProtocol {
         delegate?.didReceiveNextQuestion(question: question)
     }
     
+    // нужно чтобы удовлетворить протоколу QuestionFactoryProtocol
     func loadData() {}
 }
